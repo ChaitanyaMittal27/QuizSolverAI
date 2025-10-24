@@ -4,33 +4,13 @@
  * Replaces: StructureExtractorController + PromptController
  */
 const AdapterRouter = (function () {
-  // Site detection patterns
-  const SITE_PATTERNS = {
-    googleForms: /forms\.google\.com|docs\.google\.com\/forms/i,
-    canvas: /canvas\./i,
-    moodle: /moodle\./i,
-  };
-
-  /**
-   * Detect site type from URL
-   * @param {string} url - Page URL
-   * @returns {string} Site type: 'googleForms', 'canvas', 'moodle', or 'generic'
-   */
-  function detectSite(url) {
-    if (SITE_PATTERNS.googleForms.test(url)) return "googleForms";
-    if (SITE_PATTERNS.canvas.test(url)) return "canvas";
-    if (SITE_PATTERNS.moodle.test(url)) return "moodle";
-    return "generic";
-  }
-
   /**
    * Extract quiz structure - routes to appropriate adapter
    * @param {Object} domData - {url, cleanedHTML, timestamp}
    * @param {Object} aiService - GeminiService instance
    * @returns {Promise<Object>} Quiz structure
    */
-  async function extract(domData, aiService) {
-    const siteType = detectSite(domData.url);
+  async function extract(domData, aiService, siteType) {
     console.log("[AdapterRouter] Detected site type:", siteType);
 
     // Route to appropriate adapter
@@ -153,7 +133,6 @@ const AdapterRouter = (function () {
 
   // Public API
   return {
-    detectSite,
     extract,
   };
 })();

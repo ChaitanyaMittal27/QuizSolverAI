@@ -9,6 +9,25 @@
   let isInitialized = false;
   let geminiService = null;
 
+  // Site detection patterns
+  const SITE_PATTERNS = {
+    googleForms: /forms\.google\.com|docs\.google\.com\/forms/i,
+    canvas: /canvas\./i,
+    moodle: /moodle\./i,
+  };
+
+  /**
+   * Detect site type from URL
+   * @param {string} url - Page URL
+   * @returns {string} Site type: 'googleForms', 'canvas', 'moodle', or 'generic'
+   */
+  function detectSite(url) {
+    if (SITE_PATTERNS.googleForms.test(url)) return "googleForms";
+    if (SITE_PATTERNS.canvas.test(url)) return "canvas";
+    if (SITE_PATTERNS.moodle.test(url)) return "moodle";
+    return "generic";
+  }
+
   /**
    * Initialize Gemini API service
    */
@@ -84,20 +103,20 @@
       console.log("[Quiz Solver] ✓ DOM extracted");
 
       // Phase 2: Detect site type
-      const siteType = window.AdapterRouter.detectSite(domData.url);
+      const siteType = detectSite(domData.url);
       console.log("[Quiz Solver] Detected site:", siteType);
 
-      // Phase 3: Extract structure
+      // Phase 3: Extract structure to questions json
       console.log("[Quiz Solver] 🔍 Extracting quiz structure...");
-      const quizStructure = await window.AdapterRouter.extract(domData, geminiService);
+      const quizStructure = await window.AdapterRouter.extract(domData, geminiService, siteType);
       console.log("[Quiz Solver] ✅ Structure extracted!");
 
-      // Phase 4: Generate answers
+      // Phase 4: Generate answers and get answerInstructions json
       console.log("[Quiz Solver] 🧠 Generating answers...");
-      const answerInstructions = await window.AIAnswerGenerator.generateAnswers(quizStructure, geminiService);
+      const answerInstructions = await window.AIAnswerGenerator.generateAnswers(quizStructure, geminiService, siteType);
       console.log("[Quiz Solver] ✅ Answers generated!");
 
-      // Phase 5: Apply answers (CHANGED - now uses ApplicatorRouter)
+      // Phase 5: Apply answers to the quiz
       console.log("[Quiz Solver] ✍️ Filling answers...");
       const results = await window.ApplicatorRouter.apply(siteType, answerInstructions);
 

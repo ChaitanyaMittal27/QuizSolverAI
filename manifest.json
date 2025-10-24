@@ -16,10 +16,12 @@
         "adapters/google-forms/GoogleFormsPrompt.js",
         "adapters/google-forms/GoogleFormsExtractor.js",
         "adapters/google-forms/GoogleFormsApplicator.js",
+        "adapters/google-forms/GoogleFormsAnsGenPrompt.js",
 
         "adapters/canvas/CanvasPrompt.js",
         "adapters/canvas/CanvasExtractor.js",
         "adapters/canvas/CanvasApplicator.js",
+        "adapters/canvas/CanvasAnsGenPrompt.js",
 
         "adapters/generic/GenericPrompt.js",
         "adapters/generic/GenericExtractor.js",

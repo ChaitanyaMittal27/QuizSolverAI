@@ -1,103 +1,87 @@
-/*************************************************
- * QUIZ SOLVER — Chrome-style Error Popup (CSS only)
- * Works with your existing JS/HTML as-is.
- *************************************************/
-
-/* ===== Overlay ===== */
+/* Chrome-style Error Popup */
 .qz-error-overlay {
   position: fixed;
   inset: 0;
   display: flex;
-  align-items: flex-start; /* <— top-aligned like Chrome */
+  align-items: flex-start;
   justify-content: center;
-  padding-top: 0px; /* space from top toolbar area */
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 2147483647; /* stays above everything */
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  animation: qz-fadeIn 0.18s ease;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 2147483647;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  animation: qz-fadeIn 0.15s ease;
 }
 
-/* Center on very small screens for comfort */
-@media (max-width: 480px) {
-  .qz-error-overlay {
-    align-items: center;
-    padding-top: 0;
-  }
-}
-
-/* ===== Popup ===== */
 .qz-error-popup {
-  width: 520px;
-  max-width: 92vw;
-  background: #ffffff;
-  border-radius: 10px;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.28), 0 2px 10px rgba(0, 0, 0, 0.08);
-  overflow: hidden;
-  transform: translateY(-8px);
-  animation: qz-slideDown 0.22s ease forwards;
-  border: 1px solid #e6e8ec;
+  width: 460px;
+  max-width: 90vw;
+  background: #202124;
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  padding: 24px;
+  animation: qz-slideIn 0.2s ease;
 }
 
-/* ===== Body ===== */
 .qz-error-body {
-  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.qz-error-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 400;
+  color: #e8eaed;
+  line-height: 1.4;
 }
 
 .qz-error-message {
-  margin: 0 0 12px 0;
-  font-size: 13.5px;
+  margin: 0;
+  font-size: 14px;
+  color: #9aa0a6;
   line-height: 1.5;
-  color: #3c4043;
 }
 
-/* ===== Footer ===== */
 .qz-error-footer {
   display: flex;
-  justify-content: center;
-  margin: 0px;
-  gap: 10px;
-  padding: 0px;
-  border-top: 1px solid #eceff3;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 8px;
 }
 
-/* Buttons */
 .qz-error-btn {
-  padding: 8px 14px;
-  border: 1px solid transparent;
-  border-radius: 8px;
-  font-size: 13.5px;
-  line-height: 1.2;
-  font-weight: 600;
+  padding: 8px 24px;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease, transform 0.02s ease;
+  transition: all 0.15s ease;
   outline: none;
 }
 
-.qz-error-btn:active {
-  transform: translateY(1px);
-}
-
-.qz-btn-secondary {
-  background: #ffffff;
-  color: #1f2937;
-  border-color: #d1d5db;
-}
-
-.qz-btn-secondary:hover {
-  background: #f3f4f6;
-  border-color: #c5cdd6;
-}
-
 .qz-btn-primary {
-  background: #1a73e8; /* Google blue */
-  color: #ffffff;
+  background: #8ab4f8;
+  color: #202124;
 }
 
 .qz-btn-primary:hover {
-  background: #155fc4;
+  background: #aac7fa;
 }
 
-/* ===== Animations ===== */
+.qz-btn-secondary {
+  background: #303134;
+  color: #e8eaed;
+}
+
+.qz-btn-secondary:hover {
+  background: #3c4043;
+}
+
+.qz-error-btn:active {
+  transform: scale(0.98);
+}
+
 @keyframes qz-fadeIn {
   from {
     opacity: 0;
@@ -107,55 +91,40 @@
   }
 }
 
-@keyframes qz-slideDown {
+@keyframes qz-slideIn {
   from {
-    transform: translateY(-8px);
+    transform: scale(0.95);
     opacity: 0;
   }
   to {
-    transform: translateY(0);
+    transform: scale(1);
     opacity: 1;
   }
 }
 
-/* ===== Dark Mode ===== */
-@media (prefers-color-scheme: dark) {
-  .qz-error-overlay {
-    background: rgba(0, 0, 0, 0.6);
-  }
+/* Light theme */
+@media (prefers-color-scheme: light) {
   .qz-error-popup {
-    background: #1f1f1f;
-    border-color: #2b2b2b;
+    background: #ffffff;
   }
-  .qz-error-body {
-    color: #dcdcdc;
+  .qz-error-title {
+    color: #202124;
   }
   .qz-error-message {
-    color: #efefef;
-  }
-  .qz-error-footer {
-    border-top-color: #2b2b2b;
-  }
-  .qz-btn-secondary {
-    background: #121212;
-    color: #e6e6e6;
-    border-color: #3a3a3a;
-  }
-  .qz-btn-secondary:hover {
-    background: #171717;
+    color: #5f6368;
   }
   .qz-btn-primary {
-    background: #3b82f6;
+    background: #1a73e8;
+    color: #ffffff;
   }
   .qz-btn-primary:hover {
-    background: #2563eb;
+    background: #1765cc;
   }
-}
-
-/* ===== Reduced Motion ===== */
-@media (prefers-reduced-motion: reduce) {
-  .qz-error-overlay,
-  .qz-error-popup {
-    animation: none !important;
+  .qz-btn-secondary {
+    background: #f1f3f4;
+    color: #202124;
+  }
+  .qz-btn-secondary:hover {
+    background: #e8eaed;
   }
 }

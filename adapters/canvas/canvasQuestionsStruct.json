@@ -1,0 +1,105 @@
+{
+  "quizMetadata": {
+    "url": "https://canvas.example.com/courses/123/quizzes/456/take",
+    "platform": "canvas",
+    "title": "Canvas Quiz",
+    "timestamp": "2025-01-15T10:30:00.000Z"
+  },
+  "questions": [
+    {
+      "qid": "q1",
+      "question_id": "question_3385323",
+      "question_class": "display_question question multiple_choice_question",
+      "question_name": null,
+      "question_text": "What is 2+2?",
+      "question_type": "radio",
+      "points": 1,
+      "options": [
+        {
+          "oid": "opt1",
+          "option_id": "question_3385323_answer_123",
+          "option_name": "question_3385323",
+          "option_class": "question_input",
+          "option_text": "3"
+        },
+        {
+          "oid": "opt2",
+          "option_id": "question_3385323_answer_124",
+          "option_name": "question_3385323",
+          "option_class": "question_input",
+          "option_text": "4"
+        },
+        {
+          "oid": "opt3",
+          "option_id": "question_3385323_answer_125",
+          "option_name": "question_3385323",
+          "option_class": "question_input",
+          "option_text": "5"
+        }
+      ]
+    },
+    {
+      "qid": "q2",
+      "question_id": "question_3385326",
+      "question_class": "display_question question multiple_answers_question",
+      "question_name": null,
+      "question_text": "Select all prime numbers:",
+      "question_type": "checkbox",
+      "points": 2,
+      "options": [
+        {
+          "oid": "opt1",
+          "option_id": "question_3385326_answer_5770",
+          "option_name": "question_3385326_answer_5770",
+          "option_class": "question_input",
+          "option_text": "2"
+        },
+        {
+          "oid": "opt2",
+          "option_id": "question_3385326_answer_5771",
+          "option_name": "question_3385326_answer_5771",
+          "option_class": "question_input",
+          "option_text": "3"
+        },
+        {
+          "oid": "opt3",
+          "option_id": "question_3385326_answer_5772",
+          "option_name": "question_3385326_answer_5772",
+          "option_class": "question_input",
+          "option_text": "4"
+        },
+        {
+          "oid": "opt4",
+          "option_id": "question_3385326_answer_5773",
+          "option_name": "question_3385326_answer_5773",
+          "option_class": "question_input",
+          "option_text": "5"
+        }
+      ]
+    },
+    {
+      "qid": "q3",
+      "question_id": "question_3385324",
+      "question_class": "display_question question short_answer_question",
+      "question_name": null,
+      "question_text": "What is the capital of France?",
+      "question_type": "text",
+      "points": 1,
+      "input_id": "question_3385324_answer",
+      "input_class": "question_input",
+      "input_name": "question_3385324"
+    },
+    {
+      "qid": "q4",
+      "question_id": "question_3385327",
+      "question_class": "display_question question essay_question",
+      "question_name": null,
+      "question_text": "Explain the water cycle in detail.",
+      "question_type": "textarea",
+      "points": 5,
+      "input_id": "question_input_0",
+      "input_class": "question_input",
+      "input_name": "question_3385327"
+    }
+  ]
+}

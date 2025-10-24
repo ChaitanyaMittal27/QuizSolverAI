@@ -30,6 +30,7 @@ const GoogleFormsExtractor = (function () {
     const questions = extractQuestions(doc);
 
     console.log(`[GoogleFormsExtractor] Extracted ${questions.length} questions`);
+    console.log(questions);
 
     // Build structure matching AI format
     const structure = {
@@ -96,7 +97,7 @@ const GoogleFormsExtractor = (function () {
     // Detect question type
     const questionType = detectQuestionType(container);
 
-    // Build base question object
+    // Build base question object - matches Canvas schema with Google-specific additions
     const question = {
       qid: `q${index + 1}`,
       question_id: questionId,
@@ -104,7 +105,7 @@ const GoogleFormsExtractor = (function () {
       question_name: null,
       question_text: questionText,
       question_type: questionType,
-      required: required,
+      required: required, // Google Forms specific
       points: points,
     };
 
@@ -158,7 +159,7 @@ const GoogleFormsExtractor = (function () {
           option_class: "Od2TWd hYsg7c",
           option_name: inputName,
           option_text: optionText,
-          option_value: value,
+          option_value: value, // Google Forms specific - used for DOM selection
           selector: `div[role="radio"][data-value="${value}"]`,
         });
       }
@@ -192,7 +193,7 @@ const GoogleFormsExtractor = (function () {
           option_class: "uVccjd aiSeRd",
           option_name: inputName,
           option_text: optionText,
-          option_value: value,
+          option_value: value, // Google Forms specific - used for DOM selection
           selector: `div[role="checkbox"][data-answer-value="${value}"]`,
         });
       }
@@ -201,21 +202,19 @@ const GoogleFormsExtractor = (function () {
 
   /**
    * Extract text/textarea input details
-   * FIX: Extract the actual name attribute, not aria-labelledby
    */
   function extractTextDetails(container, question, type) {
     const input =
       type === "textarea" ? container.querySelector("textarea") : container.querySelector('input[type="text"]');
 
     if (input) {
-      // Get the ACTUAL name attribute (not aria-labelledby) ← FIX
       const inputName = input.getAttribute("name");
       const inputId = input.id || null;
       const ariaLabelledBy = input.getAttribute("aria-labelledby");
 
       question.input_id = inputId;
       question.input_class = input.className;
-      question.input_name = inputName; // ← FIX: Use actual name attribute
+      question.input_name = inputName;
 
       // Build selector - try multiple strategies
       if (inputName) {

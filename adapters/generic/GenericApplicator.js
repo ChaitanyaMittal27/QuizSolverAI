@@ -1,10 +1,11 @@
 /**
  * Generic Applicator - Basic DOM manipulation for unknown sites
  * Fallback when no site-specific applicator exists
+ * Uses ID-first strategy for reliability
  */
 const GenericApplicator = (function () {
   async function applyAnswers(answerInstructions) {
-    console.log("[GenericApplicator] ✍️ Applying answers (generic method)...");
+    console.log("[GenericApplicator] ✏️ Applying answers (generic method)...");
     console.log("[GenericApplicator] Total answers:", answerInstructions.answers.length);
 
     const results = {
@@ -44,6 +45,9 @@ const GenericApplicator = (function () {
     return results;
   }
 
+  /**
+   * Apply radio - ID-first strategy
+   */
   function applyRadio(answer) {
     const option = answer.correct_option;
     const element = findElement(option.option_id, option.option_name, option.option_class);
@@ -53,6 +57,9 @@ const GenericApplicator = (function () {
     console.log(`  → Clicked: "${option.option_text}"`);
   }
 
+  /**
+   * Apply checkbox - ID-first strategy
+   */
   function applyCheckbox(answer) {
     answer.correct_options.forEach((option) => {
       const element = findElement(option.option_id, option.option_name, option.option_class);
@@ -63,6 +70,9 @@ const GenericApplicator = (function () {
     });
   }
 
+  /**
+   * Apply text - ID-first strategy
+   */
   function applyText(answer) {
     const element = findInputElement(answer.input_id, answer.input_name, answer.input_class);
     if (!element) throw new Error("Text input not found");
@@ -71,6 +81,9 @@ const GenericApplicator = (function () {
     console.log(`  → Typed: "${answer.text_answer}"`);
   }
 
+  /**
+   * Apply textarea - ID-first strategy
+   */
   function applyTextarea(answer) {
     const element = findInputElement(answer.input_id, answer.input_name, answer.input_class);
     if (!element) throw new Error("Textarea not found");
@@ -82,32 +95,46 @@ const GenericApplicator = (function () {
 
   /**
    * Basic input filling - works for most sites
+   * Dispatches standard events that most frameworks listen to
    */
   function fillBasicInput(element, value) {
     element.focus();
     element.value = value;
 
-    // Basic events
+    // Standard events (covers most frameworks)
     element.dispatchEvent(new Event("input", { bubbles: true }));
     element.dispatchEvent(new Event("change", { bubbles: true }));
+
+    // InputEvent with inputType (for React/Canvas-like frameworks)
+    const inputEvent = new InputEvent("input", {
+      bubbles: true,
+      cancelable: true,
+      data: value,
+      inputType: "insertText",
+    });
+    element.dispatchEvent(inputEvent);
 
     element.blur();
   }
 
   /**
-   * Find element with multiple strategies
+   * Find element - ID-first strategy with fallbacks
+   * Priority: ID → Name → Class
    */
   function findElement(id, name, className) {
+    // Try ID first (most reliable and unique)
     if (id) {
-      const el = document.querySelector(`#${id}`);
+      const el = document.getElementById(id);
       if (el) return el;
     }
 
+    // Fallback to name attribute
     if (name) {
       const el = document.querySelector(`input[name="${name}"]`);
       if (el) return el;
     }
 
+    // Last resort: name + first class
     if (name && className) {
       const firstClass = className.split(" ")[0];
       const el = document.querySelector(`input[name="${name}"].${firstClass}`);
@@ -117,12 +144,18 @@ const GenericApplicator = (function () {
     return null;
   }
 
+  /**
+   * Find input element - ID-first strategy with fallbacks
+   * Priority: ID → Name (input/textarea) → Class
+   */
   function findInputElement(id, name, className) {
+    // Try ID first (most reliable and unique)
     if (id) {
-      const el = document.querySelector(`#${id}`);
+      const el = document.getElementById(id);
       if (el) return el;
     }
 
+    // Fallback to name attribute (try both input and textarea)
     if (name) {
       let el = document.querySelector(`input[name="${name}"]`);
       if (el) return el;
@@ -131,6 +164,7 @@ const GenericApplicator = (function () {
       if (el) return el;
     }
 
+    // Last resort: class name (try both input and textarea)
     if (className) {
       const firstClass = className.split(" ")[0];
       let el = document.querySelector(`input.${firstClass}`);
