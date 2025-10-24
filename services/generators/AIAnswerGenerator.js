@@ -24,6 +24,9 @@ const AIAnswerGenerator = (function () {
         maxTokens: 40002,
       });
 
+      console.log("[AnswerGenerator] AI response received");
+      console.log("[AnswerGenerator] Raw response:", response);
+
       // 3. Clean & parse JSON
       let cleaned = response
         .trim()
@@ -31,7 +34,15 @@ const AIAnswerGenerator = (function () {
         .replace(/```\n?/g, "")
         .trim();
 
-      const answerInstructions = JSON.parse(cleaned);
+      let answerInstructions = JSON.parse(cleaned);
+      // Fix: AI sometimes returns array directly instead of {answers: [...]}
+      if (Array.isArray(answerInstructions)) {
+        answerInstructions = { answers: answerInstructions };
+      }
+      // DEBUG - See what AI returned
+      console.log("[AnswerGenerator] 🔍 Parsed structure:", JSON.stringify(answerInstructions, null, 2));
+      console.log("[AnswerGenerator] Has answers?", answerInstructions?.answers);
+      console.log("[AnswerGenerator] Is array?", Array.isArray(answerInstructions?.answers));
 
       // 4. Validate
       if (!answerInstructions?.answers || !Array.isArray(answerInstructions.answers)) {
@@ -43,6 +54,7 @@ const AIAnswerGenerator = (function () {
       }
 
       console.log("[AnswerGenerator] ✅ Answers generated successfully");
+      console.log("[AnswerGenerator] Generated answers:", answerInstructions);
       return answerInstructions;
     } catch (error) {
       console.error("[AnswerGenerator] ❌ Failed:", error.message);
@@ -110,7 +122,7 @@ Return in this EXACT format (adapt to match question count and types from input)
     },
     {
       "qid": "q4",
-      "question_type": "paragraph",
+      "question_type": "textarea",
       "input_id": "question_126_essay",
       "input_class": "essay_textarea",
       "input_name": "question_126",
@@ -136,7 +148,7 @@ TEXT (short answer):
 - Copy ALL input fields from question (input_id, input_class, input_name)
 - Give factually correct answer
 
-PARAGRAPH/TEXTAREA (long answer):
+textarea/TEXTAREA (long answer):
 - Provide detailed answer
 - Copy ALL input fields from question
 - Give comprehensive, factually correct answer
@@ -146,7 +158,7 @@ CRITICAL:
 - Match qid exactly from questions
 - Copy question_type exactly
 - For radio/checkbox: Copy entire option object, don't modify
-- For text/paragraph: Copy all input fields, don't modify
+- For text/textarea: Copy all input fields, don't modify
 - Use your knowledge to determine correctness
 - Make educated guesses if uncertain
 

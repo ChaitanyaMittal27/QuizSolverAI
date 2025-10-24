@@ -113,7 +113,7 @@ const GoogleFormsExtractor = (function () {
       extractRadioDetails(container, question);
     } else if (questionType === "checkbox") {
       extractCheckboxDetails(container, question);
-    } else if (questionType === "text" || questionType === "paragraph") {
+    } else if (questionType === "text" || questionType === "textarea") {
       extractTextDetails(container, question, questionType);
     }
 
@@ -126,7 +126,7 @@ const GoogleFormsExtractor = (function () {
   function detectQuestionType(container) {
     if (container.querySelector('[role="radiogroup"]')) return "radio";
     if (container.querySelector('[role="checkbox"]')) return "checkbox";
-    if (container.querySelector("textarea")) return "paragraph";
+    if (container.querySelector("textarea")) return "textarea";
     if (container.querySelector('input[type="text"]')) return "text";
     return "unknown";
   }
@@ -200,12 +200,12 @@ const GoogleFormsExtractor = (function () {
   }
 
   /**
-   * Extract text/paragraph input details
+   * Extract text/textarea input details
    * FIX: Extract the actual name attribute, not aria-labelledby
    */
   function extractTextDetails(container, question, type) {
     const input =
-      type === "paragraph" ? container.querySelector("textarea") : container.querySelector('input[type="text"]');
+      type === "textarea" ? container.querySelector("textarea") : container.querySelector('input[type="text"]');
 
     if (input) {
       // Get the ACTUAL name attribute (not aria-labelledby) ← FIX
@@ -221,11 +221,11 @@ const GoogleFormsExtractor = (function () {
       if (inputName) {
         // Best: Use name attribute
         question.selector =
-          type === "paragraph" ? `textarea[name="${inputName}"]` : `input[type="text"][name="${inputName}"]`;
+          type === "textarea" ? `textarea[name="${inputName}"]` : `input[type="text"][name="${inputName}"]`;
       } else if (ariaLabelledBy) {
         // Fallback: Use aria-labelledby
         question.selector =
-          type === "paragraph"
+          type === "textarea"
             ? `textarea[aria-labelledby*="${question.question_id}"]`
             : `input[type="text"][aria-labelledby*="${question.question_id}"]`;
       } else if (inputId) {

@@ -61,6 +61,26 @@ const CanvasExtractor = (function () {
           });
         });
       }
+
+      // Checkboxes (multiple answers)
+      else if (answers.querySelectorAll("input[type='checkbox']").length > 0) {
+        const checkboxes = answers.querySelectorAll("input[type='checkbox']");
+        question.question_type = "checkbox";
+        question.options = [];
+
+        checkboxes.forEach((checkbox, i) => {
+          const labelId = checkbox.getAttribute("aria-labelledby");
+          const label = labelId ? div.querySelector(`#${labelId}`) : null;
+          question.options.push({
+            oid: `opt${i + 1}`,
+            option_id: checkbox.id,
+            option_name: checkbox.name,
+            option_class: checkbox.className,
+            option_text: label?.textContent.trim() || `Option ${i + 1}`,
+          });
+        });
+      }
+
       // Textarea (essay)
       else if (answers.querySelector("textarea")) {
         question.question_type = "textarea";
@@ -69,6 +89,7 @@ const CanvasExtractor = (function () {
         question.input_name = textarea.name || questionId;
         question.input_class = textarea.className;
       }
+
       // Text input (short answer)
       else if (answers.querySelector("input[type='text']")) {
         question.question_type = "text";
@@ -89,6 +110,8 @@ const CanvasExtractor = (function () {
     }
 
     console.log(`[CanvasExtractor] ✅ Extracted ${questions.length} questions`);
+    // log questions for debugging
+    console.log(questions);
 
     return {
       quizMetadata: {
@@ -100,7 +123,6 @@ const CanvasExtractor = (function () {
       questions: questions,
     };
   }
-
   return { extractStructure };
 })();
 

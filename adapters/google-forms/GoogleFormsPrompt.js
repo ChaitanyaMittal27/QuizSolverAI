@@ -34,7 +34,7 @@ Return this EXACT JSON structure:
       "question_class": "geS5n",
       "question_name": null,
       "question_text": "What is your name?",
-      "question_type": "text|paragraph|radio|checkbox",
+      "question_type": "text|textarea|radio|checkbox",
       "required": true|false,
       "points": null|number,
       "input_id": "extract from input/textarea if present",
@@ -50,7 +50,7 @@ QUESTION TYPES:
 - "radio": Single choice (role="radiogroup" or role="radio")
 - "checkbox": Multiple choice (role="checkbox")
 - "text": Short answer (input[type="text"])
-- "paragraph": Long answer (textarea)
+- "textarea": Long answer (textarea)
 
 FOR RADIO/CHECKBOX QUESTIONS, include "options" array:
 {
@@ -100,7 +100,7 @@ SELECTOR CONSTRUCTION:
 - Radio: "div[role='radio'][data-value='VALUE']"
 - Checkbox: "div[role='checkbox'][data-answer-value='VALUE']"
 - Text: "input[type='text'][name='ENTRY_NAME']"
-- Paragraph: "textarea[name='ENTRY_NAME']"
+- Textarea: "textarea[name='ENTRY_NAME']"
 
 Extract ALL questions. Use sequential IDs (q1, q2, q3...) and (opt1, opt2, opt3...).
 Return ONLY JSON, nothing else.`;
