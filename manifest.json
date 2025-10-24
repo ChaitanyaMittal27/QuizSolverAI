@@ -2,46 +2,43 @@
   "manifest_version": 3,
   "name": "Quiz Solver",
   "version": "1.0.0",
-  "description": "AI-powered quiz solving assistant",
-
-  "permissions": ["activeTab", "storage"],
-
+  "description": "Automatically solve quizzes",
+  "permissions": ["activeTab"],
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
       "js": [
         "config/constants.js",
+
         "services/ai/IAIService.js",
         "services/ai/GeminiService.js",
-        "services/extractors/prompts/generic-prompt.js",
-        "services/extractors/prompts/canvas-prompt.js",
-        "services/extractors/prompts/google-forms-prompt.js",
-        "services/extractors/prompts/PromptController.js",
-        "services/extractors/StructureExtractorController.js",
-        "services/extractors/GoogleFormsExtractor.js",
-        "services/extractors/AIStructureExtractor.js",
+
+        "adapters/google-forms/GoogleFormsPrompt.js",
+        "adapters/google-forms/GoogleFormsExtractor.js",
+        "adapters/google-forms/GoogleFormsApplicator.js",
+
+        "adapters/canvas/CanvasPrompt.js",
+        "adapters/canvas/CanvasExtractor.js",
+        "adapters/canvas/CanvasApplicator.js",
+
+        "adapters/generic/GenericPrompt.js",
+        "adapters/generic/GenericExtractor.js",
+        "adapters/generic/GenericApplicator.js",
+
+        "services/extractors/AdapterRouter.js",
+        "services/applicators/ApplicatorRouter.js",
         "services/generators/AIAnswerGenerator.js",
-        "content/AnswerApplicator.js",
+
         "content/ErrorHandlerPopup.js",
         "content/DOMManager.js",
         "content/content.js"
       ],
-      "css": ["styles/error-popup.css"],
-      "run_at": "document_idle"
+      "css": ["styles/error-popup.css"]
     }
   ],
-
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
-  },
-
-  "action": {
-    "default_popup": "popup.html",
-    "default_icon": {
-      "16": "icons/icon16.png",
-      "48": "icons/icon48.png"
-    }
   }
 }
