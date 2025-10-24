@@ -9,7 +9,20 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["config/constants.js", "content/content.js"],
+      "js": [
+        "config/constants.js",
+        "services/ai/IAIService.js",
+        "services/ai/GeminiService.js",
+        "services/extractors/prompts/generic-prompt.js",
+        "services/extractors/prompts/canvas-prompt.js",
+        "services/extractors/prompts/PromptController.js",
+        "services/extractors/AIStructureExtractor.js",
+        "services/generators/AIAnswerGenerator.js",
+        "content/error-handler-popup.js",
+        "content/dom-manager.js",
+        "content/content.js"
+      ],
+      "css": ["styles/error-popup.css"],
       "run_at": "document_idle"
     }
   ],
