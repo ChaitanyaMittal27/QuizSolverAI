@@ -1,0 +1,77 @@
+/**
+ * ANSWER INSTRUCTIONS FORMAT
+ * 
+ * Strategy: Try selectors in order of specificity
+ * 1. Try: document.querySelector('#' + option_id)     ← Most specific
+ * 2. Try: document.querySelector('[name="' + option_name + '"]')
+ * 3. Try: document.querySelector('.' + option_class)  ← Least specific (fallback)
+ * 
+ * This way we have failsafe without redundant selector field!
+ */
+{
+  "answers": [
+    // ============================================
+    // RADIO - Single choice (click ONE option)
+    // ============================================
+    {
+      "qid": "q1",
+      "question_type": "radio",
+      "correct_option": {
+        "oid": "opt3",                                    // Our internal ID
+        "option_id": "question_3385323_answer_64796",   // Try #id first
+        "option_class": "answer",                        // Fallback to .class
+        "option_name": "question_3385323",              // Fallback to [name]
+        "option_text": "3"                              // What user sees
+      }
+    },
+
+    // ============================================
+    // TEXT - Type short answer
+    // ============================================
+    {
+      "qid": "q2",
+      "question_type": "text",
+      "input_id": "question_124_answer",     // Try #id first
+      "input_class": "question_input",       // Fallback to .class
+      "input_name": "question_124",          // Fallback to [name]
+      "text_answer": "Paris"                 // What to type
+    },
+
+    // ============================================
+    // CHECKBOX - Multiple choice (click MULTIPLE)
+    // ============================================
+    {
+      "qid": "q3",
+      "question_type": "checkbox",
+      "correct_options": [                   // Array of correct options
+        {
+          "oid": "opt1",
+          "option_id": "answer_501",
+          "option_class": "answer checkbox",
+          "option_name": "question_125[]",
+          "option_text": "2"
+        },
+        {
+          "oid": "opt3",
+          "option_id": "answer_503",
+          "option_class": "answer checkbox",
+          "option_name": "question_125[]",
+          "option_text": "4"
+        }
+      ]
+    },
+
+    // ============================================
+    // TEXTAREA - Type long answer
+    // ============================================
+    {
+      "qid": "q4",
+      "question_type": "textarea",
+      "input_id": "question_126_essay",
+      "input_class": "essay_textarea",
+      "input_name": "question_126",
+      "text_answer": "The answer is based on multiple factors including historical context and modern interpretation..."
+    }
+  ]
+}
+
