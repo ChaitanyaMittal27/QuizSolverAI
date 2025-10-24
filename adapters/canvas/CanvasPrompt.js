@@ -1,5 +1,6 @@
 /**
- * Canvas LMS Quiz Prompt - COMPLETE VERSION
+ * Canvas LMS Prompt Template
+ * Site-specific prompt for Canvas LMS extraction
  */
 const CanvasPrompt = {
   build(html, url) {
@@ -15,7 +16,7 @@ URL: ${url}
 HTML:
 ${html}
 
-Return this EXACT JSON structure: (this is example only, adapt to actual questions found)
+Return this EXACT JSON structure:
 {
   "quizMetadata": {
     "url": "${url}",
@@ -128,4 +129,5 @@ Return ONLY the JSON object, nothing else.`;
   },
 };
 
+// Expose globally
 window.CanvasPrompt = CanvasPrompt;

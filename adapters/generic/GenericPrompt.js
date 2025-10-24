@@ -1,5 +1,6 @@
 /**
- * Generic Prompt - Complete version
+ * Generic Prompt Template
+ * Fallback prompt for unknown/generic sites
  */
 const GenericPrompt = {
   build(html, url) {
@@ -11,7 +12,7 @@ URL: ${url}
 HTML:
 ${html}
 
-Return this EXACT structure with ALL DOM attributes: (this is example only, adapt to actual questions found)
+Return this EXACT structure with ALL DOM attributes:
 {
   "quizMetadata": {
     "url": "${url}",
@@ -66,4 +67,5 @@ Return ONLY JSON.`;
   },
 };
 
+// Expose globally
 window.GenericPrompt = GenericPrompt;

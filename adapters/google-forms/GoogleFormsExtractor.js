@@ -1,6 +1,6 @@
 /**
- * GoogleFormsExtractor - Manual DOM extraction for Google Forms
- * Extracts quiz structure directly from Google Forms HTML
+ * Google Forms Extractor
+ * Manual DOM extraction for Google Forms
  */
 const GoogleFormsExtractor = (function () {
   /**
@@ -42,29 +42,6 @@ const GoogleFormsExtractor = (function () {
       },
       questions: questions,
     };
-
-    console.log("[GoogleFormsExtractor] ========================================");
-    console.log("[GoogleFormsExtractor] COMPLETE EXTRACTION RESULT:");
-    console.log("[GoogleFormsExtractor] ========================================");
-    console.log(JSON.stringify(structure, null, 2));
-    console.log("[GoogleFormsExtractor] ========================================");
-
-    // Debug output
-    console.log("[GoogleFormsExtractor] INDIVIDUAL QUESTIONS:");
-    questions.forEach((q) => {
-      console.log(`[GoogleFormsExtractor] --- Question ${q.qid.replace("q", "")} ---`);
-      console.log(`[GoogleFormsExtractor]   qid: ${q.qid}`);
-      console.log(`[GoogleFormsExtractor]   text: ${q.question_text}`);
-      console.log(`[GoogleFormsExtractor]   type: ${q.question_type}`);
-      console.log(`[GoogleFormsExtractor]   selector: ${q.selector}`);
-      if (q.options && q.options.length > 0) {
-        console.log(`[GoogleFormsExtractor]   options (${q.options.length}):`);
-        q.options.forEach((opt) => {
-          console.log(`[GoogleFormsExtractor]     - ${opt.option_text} (${opt.selector})`);
-        });
-      }
-    });
-    console.log("[GoogleFormsExtractor] ========================================");
 
     return structure;
   }
@@ -123,7 +100,7 @@ const GoogleFormsExtractor = (function () {
     const question = {
       qid: `q${index + 1}`,
       question_id: questionId,
-      question_class: "geS5n", // Google Forms question container class
+      question_class: "geS5n",
       question_name: null,
       question_text: questionText,
       question_type: questionType,
@@ -136,7 +113,7 @@ const GoogleFormsExtractor = (function () {
       extractRadioDetails(container, question);
     } else if (questionType === "checkbox") {
       extractCheckboxDetails(container, question);
-    } else if (questionType === "text" || questionType === "paragraph") {
+    } else if (questionType === "text" || questionType === "textarea") {
       extractTextDetails(container, question, questionType);
     }
 
@@ -149,7 +126,7 @@ const GoogleFormsExtractor = (function () {
   function detectQuestionType(container) {
     if (container.querySelector('[role="radiogroup"]')) return "radio";
     if (container.querySelector('[role="checkbox"]')) return "checkbox";
-    if (container.querySelector("textarea")) return "paragraph";
+    if (container.querySelector("textarea")) return "textarea";
     if (container.querySelector('input[type="text"]')) return "text";
     return "unknown";
   }
@@ -158,7 +135,6 @@ const GoogleFormsExtractor = (function () {
    * Extract radio button details
    */
   function extractRadioDetails(container, question) {
-    const radioGroup = container.querySelector('[role="radiogroup"]');
     const radioButtons = container.querySelectorAll('[role="radio"]');
 
     // Get input name from hidden input if present
@@ -179,7 +155,7 @@ const GoogleFormsExtractor = (function () {
         question.options.push({
           oid: `opt${idx + 1}`,
           option_id: radio.id,
-          option_class: "Od2TWd hYsg7c", // Google Forms radio class
+          option_class: "Od2TWd hYsg7c",
           option_name: inputName,
           option_text: optionText,
           option_value: value,
@@ -213,7 +189,7 @@ const GoogleFormsExtractor = (function () {
         question.options.push({
           oid: `opt${idx + 1}`,
           option_id: checkbox.id,
-          option_class: "uVccjd aiSeRd", // Google Forms checkbox class
+          option_class: "uVccjd aiSeRd",
           option_name: inputName,
           option_text: optionText,
           option_value: value,
@@ -224,15 +200,15 @@ const GoogleFormsExtractor = (function () {
   }
 
   /**
-   * Extract text/paragraph input details
+   * Extract text/textarea input details
    * FIX: Extract the actual name attribute, not aria-labelledby
    */
   function extractTextDetails(container, question, type) {
     const input =
-      type === "paragraph" ? container.querySelector("textarea") : container.querySelector('input[type="text"]');
+      type === "textarea" ? container.querySelector("textarea") : container.querySelector('input[type="text"]');
 
     if (input) {
-      // Get the ACTUAL name attribute (not aria-labelledby)
+      // Get the ACTUAL name attribute (not aria-labelledby) ← FIX
       const inputName = input.getAttribute("name");
       const inputId = input.id || null;
       const ariaLabelledBy = input.getAttribute("aria-labelledby");
@@ -245,11 +221,11 @@ const GoogleFormsExtractor = (function () {
       if (inputName) {
         // Best: Use name attribute
         question.selector =
-          type === "paragraph" ? `textarea[name="${inputName}"]` : `input[type="text"][name="${inputName}"]`;
+          type === "textarea" ? `textarea[name="${inputName}"]` : `input[type="text"][name="${inputName}"]`;
       } else if (ariaLabelledBy) {
         // Fallback: Use aria-labelledby
         question.selector =
-          type === "paragraph"
+          type === "textarea"
             ? `textarea[aria-labelledby*="${question.question_id}"]`
             : `input[type="text"][aria-labelledby*="${question.question_id}"]`;
       } else if (inputId) {

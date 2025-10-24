@@ -1,68 +1,314 @@
-# YouTube Bookmarker (MV3)
+# Quiz Solver Chrome Extension
 
-A lightweight Chrome extension that lets you **bookmark timestamps on YouTube videos** right from the player controls, and **play / delete** them from a clean popup UI. Inspired by this tutorial: https://www.youtube.com/watch?v=0n809nd4Zu4
+> **⚠️ Educational Purpose Only**: This extension is designed for educational and research purposes. Always respect academic integrity policies and terms of service of online platforms.
 
-## ✨ Features
+An intelligent Chrome extension that automatically analyzes and solves online quizzes using AI. It supports multiple quiz platforms including Google Forms, Canvas LMS, and generic quiz sites.
 
-- **“+” bookmark button** injected into the YouTube player controls  
-  (adds a bookmark at the current timestamp).
-- **Popup UI** to list, play, and delete bookmarks for the current video.
-- **Persistent storage** per-video using `chrome.storage.sync`.
-- **SPA-safe initialization** for YouTube’s in-page navigation (re-inits on URL change).
-- **MV3 service worker** background script that detects new video navigations and notifies the content script.
+## 🌟 Features
 
-## 🚀 Install (Developer Mode)
+- **Multi-Platform Support**: Works with Google Forms, Canvas LMS, Moodle, and generic quiz sites
+- **Intelligent Extraction**: Combines manual DOM extraction with AI-powered fallback
+- **Multiple Question Types**: Handles radio buttons, checkboxes, text inputs, and text areas
+- **Smart Answer Generation**: Uses Google's Gemini AI to determine correct answers
+- **Automatic Form Filling**: Intelligently fills in answers with proper event triggering
+- **Keyboard Shortcuts**: Quick access via Ctrl+Shift+Q
+- **Error Handling**: User-friendly error notifications with Chrome-style UI
 
-1. **Clone / download** this repo.
-2. Open **Chrome** → `chrome://extensions`
-3. Enable **Developer mode** (top right).
-4. Click **Load unpacked** and select the project folder.
-5. Open any **YouTube video** and look for the **bookmark (“+”) icon** in the left player controls.
+## 🏗️ Architecture
 
-> Note: The popup lists bookmarks **only when the active tab is a `youtube.com/watch` page**.
+The extension follows a modular, pipeline-based architecture:
 
-## 🧠 How It Works
+```
+User Trigger → DOM Extraction → Structure Parsing → Answer Generation → Form Filling
+```
 
-1. **Detect video changes**  
-   The background service worker listens for tab updates; when a YouTube watch URL finishes loading, it extracts the `v` parameter and sends a `NEW_VIDEO` message to the tab’s content script.
+### Core Components
 
-2. **Inject UI & save bookmarks**  
-   The content script waits for the player (`.video-stream`) and controls (`.ytp-left-controls`), injects an **image button** (from web-accessible resources), and on click, **saves `currentTime`** with a human label (HH:MM:SS) to `chrome.storage.sync` under the **current video ID**.
+1. **DOMManager**: Extracts and cleans HTML from web pages
+2. **AdapterRouter**: Routes extraction to site-specific adapters
+3. **Extractors**: Site-specific extraction logic (Google Forms, Canvas, Generic)
+4. **AIAnswerGenerator**: Generates correct answers using Gemini AI
+5. **AnswerApplicator**: Applies answers to the DOM with proper event handling
+6. **GeminiService**: Handles communication with Google's Gemini API
 
-3. **View / play / delete in popup**  
-   The popup reads the stored list for the current video, renders rows with **Play** and **Delete** actions; **Play** sends a message to the content script to seek the player to that timestamp; **Delete** removes the entry and re-renders.
+### Extraction Strategy
 
-## 🔒 Permissions
+The extension uses a two-tier approach:
 
-- `"storage"` — save bookmarks per video.
-- `"tabs"` — detect current tab and send messages.
-- `host_permissions: "https://*.youtube.com/*"` — run on YouTube pages and load assets.
+1. **Manual Extraction** (Fast, Reliable)
+   - Attempts manual DOM parsing for known platforms
+   - Currently implemented for Google Forms
+2. **AI Fallback** (Flexible, Universal)
+   - Falls back to AI-based extraction if manual extraction fails
+   - Works with any quiz platform
 
-## 🛠️ Development Notes
+## 📋 Prerequisites
 
-- **Web-accessible assets:** images are referenced using `chrome.runtime.getURL("assets/...")` from the content script and popup.
-- **SPA handling:** a `MutationObserver` re-initializes when YouTube navigates to a new `/watch?v=...` without a full page reload.
-- **Popup → player communication:** popup `PLAY` sends a message to the content script, which seeks the player.
-- **Tab helper:** `utils.getCurrentTab()` is used by the popup to locate the active tab.
+- Google Chrome or Chromium-based browser
+- Google Gemini API key ([Get one here](https://makersuite.google.com/app/apikey))
 
-## 🧪 Common Gotchas & Fixes
+## 🚀 Installation
 
-- **`getURL` vs `getUrl`:** The correct API is `chrome.runtime.getURL(...)` (uppercase `URL`). Using `getUrl` will throw in content scripts.
-- **Timestamp format:** Use `toISOString().substring(11, 19)` or a custom formatter for **HH:MM:SS**.
-- **Extension context invalidated:** On YouTube SPA navigation or reload, pending async calls can fire after teardown. Re-init via the built-in navigation handling and avoid long async chains during unload.
+### 1. Clone the Repository
 
-## 🧹 Roadmap / Ideas
+```bash
+git clone https://github.com/yourusername/quiz-solver-extension.git
+cd quiz-solver-extension
+```
 
-- Edit bookmark labels from the popup.
-- Export/import bookmarks per video.
-- Keyboard shortcuts for quick bookmarking.
-- Sync fallback to local storage if desired.
+### 2. Configure API Key
 
-## 🙌 Credits
+Edit `config/constants-placeholder.js`:
+Put your API key in appropraite place.
+Rename file to constants.js
 
-- **Inspired by:** https://www.youtube.com/watch?v=0n809nd4Zu4
-- Thanks to the Chrome Extensions API and YouTube’s player UI elements.
+### 3. Load Extension in Chrome
 
-## 📄 License
+1. Open Chrome and navigate to `chrome://extensions/`
+2. Enable "Developer mode" (toggle in top-right corner)
+3. Click "Load unpacked"
+4. Select your extension directory
+5. The extension should now be loaded and active
 
-See **LICENSE** in the repository.
+## 📖 Usage
+
+### Basic Usage
+
+1. Navigate to any quiz page (Google Forms, Canvas, etc.)
+2. Press **Ctrl+Shift+Q** to activate the solver
+3. Wait for the AI to process (check console for progress)
+4. Answers will be automatically filled in
+
+### Keyboard Shortcuts
+
+| Shortcut       | Action                     |
+| -------------- | -------------------------- |
+| `Ctrl+Shift+Q` | Solve quiz                 |
+| `Ctrl+Shift+E` | Undo (not yet implemented) |
+
+### Supported Platforms
+
+#### ✅ Fully Supported
+
+- **Google Forms**: Manual + AI extraction
+- **Generic sites**: AI-based extraction
+
+#### 🚧 Partial Support
+
+- **Canvas LMS**: AI extraction only (manual coming soon)
+- **Moodle**: AI extraction only (manual coming soon)
+
+## 🔧 Configuration
+
+Edit `config/constants.js` to customize:
+
+```javascript
+const CONFIG = {
+  // API Configuration
+  GEMINI_API_KEY: "your-key-here",
+  GEMINI_API_ENDPOINT: "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
+
+  // Keyboard shortcuts
+  SHORTCUTS: {
+    SOLVE: { ctrl: true, shift: true, key: "Q" },
+    UNDO: { ctrl: true, shift: true, key: "E" },
+  },
+
+  // Timing (for future use)
+  DELAYS: {
+    MIN: 100,
+    MAX: 500,
+  },
+};
+```
+
+## 🐛 Known Issues
+
+1. **API Key Security**: Currently hardcoded (should use Chrome storage API)
+2. **Type Inconsistency**: `paragraph` vs `textarea` type mismatch between components
+3. **No Undo Feature**: Undo functionality not yet implemented
+4. **No Loading UI**: Users don't see progress during AI processing
+5. **Canvas/Moodle**: Manual extraction not yet implemented
+6. **No Rate Limiting**: Could hit API rate limits on heavy use
+
+## 📊 Console Output
+
+The extension provides detailed logging:
+
+```
+[Quiz Solver] Extension loaded successfully! 🚀
+[Quiz Solver] 🎯 Solve triggered!
+[Quiz Solver] ✓ DOM extracted
+[AdapterRouter] Detected site type: googleForms
+[AdapterRouter] Trying manual Google Forms extraction...
+[GoogleFormsExtractor] Extracted 5 questions
+[Quiz Solver] ✅ Structure extracted!
+[AnswerGenerator] 🧠 Generating answers...
+[AnswerGenerator] ✅ Answers generated successfully
+[AnswerApplicator] ✏️ Applying answers...
+[AnswerApplicator] ✅ Complete!
+[Quiz Solver] 📊 Results: 5/5 answered
+```
+
+## 🔍 How It Works
+
+### 1. DOM Extraction
+
+```javascript
+const domManager = new DOMManager();
+const domData = domManager.extractCleanHTML();
+// Returns: { cleanedHTML, url, timestamp }
+```
+
+### 2. Structure Extraction
+
+```javascript
+const quizStructure = await AdapterRouter.extract(domData, geminiService);
+// Returns: { quizMetadata, questions[] }
+```
+
+### 3. Answer Generation
+
+```javascript
+const answerInstructions = await AIAnswerGenerator.generateAnswers(quizStructure, geminiService);
+// Returns: { answers[] }
+```
+
+### 4. Form Filling
+
+```javascript
+const results = await AnswerApplicator.applyAnswers(answerInstructions);
+// Returns: { total, success, failed, details[] }
+```
+
+## 🧪 Question Types Supported
+
+| Type       | Description     | Example                         |
+| ---------- | --------------- | ------------------------------- |
+| `radio`    | Single choice   | Multiple choice with one answer |
+| `checkbox` | Multiple choice | Select all that apply           |
+| `text`     | Short answer    | Single-line text input          |
+| `textarea` | Long answer     | Multi-line paragraph input      |
+
+## 🛠️ Development
+
+### Adding a New Platform
+
+1. Create extractor in `adapters/your-platform/`
+2. Create prompt template `YourPlatformPrompt.js`
+3. Create extractor `YourPlatformExtractor.js`
+4. Add detection pattern to `AdapterRouter.js`
+5. Add extraction case in `AdapterRouter.extract()`
+
+Example:
+
+```javascript
+// In AdapterRouter.js
+const SITE_PATTERNS = {
+  yourPlatform: /yourplatform\.com/i,
+};
+
+case "yourPlatform":
+  return await extractYourPlatform(domData, aiService);
+```
+
+### Debugging
+
+Open Chrome DevTools Console to see detailed logs from each component:
+
+- `[Quiz Solver]` - Main orchestration
+- `[AdapterRouter]` - Routing decisions
+- `[GoogleFormsExtractor]` - Manual extraction
+- `[AnswerGenerator]` - AI answer generation
+- `[AnswerApplicator]` - Form filling
+
+## 📄 Project Structure
+
+```
+.
+├── manifest.json              # Extension manifest
+├── config/
+│   └── constants.js          # Configuration and API keys
+├── services/
+│   ├── ai/                   # AI service layer
+│   ├── extractors/           # Extraction routing
+│   └── generators/           # Answer generation
+├── adapters/                 # Platform-specific adapters
+│   ├── google-forms/         # Google Forms support
+│   ├── canvas/               # Canvas LMS support
+│   └── generic/              # Generic quiz support
+├── content/                  # Content scripts
+│   ├── content.js           # Main entry point
+│   ├── DOMManager.js        # DOM extraction
+│   ├── AnswerApplicator.js  # Answer filling
+│   └── ErrorHandlerPopup.js # Error handling
+└── styles/
+    └── error-popup.css      # Error UI styling
+```
+
+## 🔐 Security Considerations
+
+- **API Key**: Never commit API keys to version control
+- **Rate Limiting**: Implement rate limiting to avoid API quota exhaustion
+- **Input Validation**: Validate all DOM selections before manipulation
+- **Error Handling**: Gracefully handle failures without exposing sensitive data
+
+## 🤝 Contributing
+
+Contributions are welcome! Please:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+### Priority TODOs
+
+- [ ] Implement secure API key storage (Chrome storage API)
+- [ ] Fix paragraph/textarea type inconsistency
+- [ ] Add undo functionality
+- [ ] Implement loading/progress indicators
+- [ ] Complete Canvas manual extractor
+- [ ] Complete Moodle manual extractor
+- [ ] Add rate limiting
+- [ ] Add answer validation
+- [ ] Implement delay between actions
+- [ ] Create extension icons
+
+## ⚠️ Disclaimer
+
+This extension is intended for:
+
+- Educational purposes
+- Testing and research
+- Personal study aids
+
+**Please note:**
+
+- Always respect academic integrity policies
+- Check platform terms of service before use
+- Use responsibly and ethically
+- The developers are not responsible for misuse
+
+## 📝 License
+
+MIT License - See LICENSE file for details
+
+## 🙏 Acknowledgments
+
+- Google Gemini AI for answer generation
+- Chrome Extensions API
+- Open source community
+
+## 📧 Support
+
+For issues, questions, or contributions:
+
+- Open an issue on GitHub
+- Check existing issues for solutions
+- Review the console logs for debugging
+
+---
+
+**Made with ❤️ for educational purposes**

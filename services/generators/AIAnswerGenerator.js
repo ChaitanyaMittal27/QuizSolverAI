@@ -1,11 +1,12 @@
 /**
- * AIAnswerGenerator - Generate correct answers for quiz questions
- * Takes standardized quiz structure → Returns standardized answer instructions
+ * AI Answer Generator
+ * Generates correct answers for quiz questions using AI
+ * Generic service - works with any quiz structure
  */
 const AIAnswerGenerator = (function () {
   /**
    * Generate answers for quiz questions
-   * @param {Object} quizStructure - Quiz structure from Phase 3
+   * @param {Object} quizStructure - Quiz structure from extraction phase
    * @param {Object} aiService - AI service (GeminiService)
    * @returns {Promise<Object>} Answer instructions
    */
@@ -20,8 +21,11 @@ const AIAnswerGenerator = (function () {
       // 2. Send to AI
       const response = await aiService.query(prompt, {
         temperature: 0.3,
-        maxTokens: 4096,
+        maxTokens: 40002,
       });
+
+      console.log("[AnswerGenerator] AI response received");
+      console.log("[AnswerGenerator] Raw response:", response);
 
       // 3. Clean & parse JSON
       let cleaned = response
@@ -30,7 +34,15 @@ const AIAnswerGenerator = (function () {
         .replace(/```\n?/g, "")
         .trim();
 
-      const answerInstructions = JSON.parse(cleaned);
+      let answerInstructions = JSON.parse(cleaned);
+      // Fix: AI sometimes returns array directly instead of {answers: [...]}
+      if (Array.isArray(answerInstructions)) {
+        answerInstructions = { answers: answerInstructions };
+      }
+      // DEBUG - See what AI returned
+      console.log("[AnswerGenerator] 🔍 Parsed structure:", JSON.stringify(answerInstructions, null, 2));
+      console.log("[AnswerGenerator] Has answers?", answerInstructions?.answers);
+      console.log("[AnswerGenerator] Is array?", Array.isArray(answerInstructions?.answers));
 
       // 4. Validate
       if (!answerInstructions?.answers || !Array.isArray(answerInstructions.answers)) {
@@ -41,23 +53,8 @@ const AIAnswerGenerator = (function () {
         throw new Error("No answers generated");
       }
 
-      /* DEBUG results generate answers
-      console.log("[AnswerGenerator] ✅ Answers generated!");
-      console.log("[AnswerGenerator] Total:", answerInstructions.answers.length);
-      answerInstructions.answers.forEach((ans, i) => {
-        if (ans.question_type === "radio") {
-          console.log(`  A${i + 1}: [radio] ${ans.qid} → "${ans.correct_option.option_text}"`);
-        } else if (ans.question_type === "checkbox") {
-          const texts = ans.correct_options.map((o) => o.option_text).join(", ");
-          console.log(`  A${i + 1}: [checkbox] ${ans.qid} → [${texts}]`);
-        } else {
-          const preview = ans.text_answer.substring(0, 40);
-          console.log(`  A${i + 1}: [${ans.question_type}] ${ans.qid} → "${preview}..."`);
-        }
-      });
-      */
-
-      console.log("[AnswerGenerator] ✅ Answers generated successfully"); // DEBUG log
+      console.log("[AnswerGenerator] ✅ Answers generated successfully");
+      console.log("[AnswerGenerator] Generated answers:", answerInstructions);
       return answerInstructions;
     } catch (error) {
       console.error("[AnswerGenerator] ❌ Failed:", error.message);
@@ -66,7 +63,7 @@ const AIAnswerGenerator = (function () {
   }
 
   /**
-   * Build prompt for AI
+   * Build prompt for AI answer generation
    */
   function buildPrompt(quizStructure) {
     return `You are an expert quiz solver. Analyze these questions and determine the correct answers.
@@ -81,7 +78,7 @@ CRITICAL RULES:
 QUESTIONS TO SOLVE:
 ${JSON.stringify(quizStructure.questions, null, 2)}
 
-Return in this EXACT format (this is an example with 4 questions, adapt as needed to match question count and types from input):
+Return in this EXACT format (adapt to match question count and types from input):
 {
   "answers": [
     {
@@ -151,7 +148,7 @@ TEXT (short answer):
 - Copy ALL input fields from question (input_id, input_class, input_name)
 - Give factually correct answer
 
-TEXTAREA (long answer):
+textarea/TEXTAREA (long answer):
 - Provide detailed answer
 - Copy ALL input fields from question
 - Give comprehensive, factually correct answer
@@ -168,7 +165,10 @@ CRITICAL:
 Return ONLY JSON, nothing else.`;
   }
 
-  return { generateAnswers };
+  return {
+    generateAnswers,
+  };
 })();
 
+// Expose globally
 window.AIAnswerGenerator = AIAnswerGenerator;

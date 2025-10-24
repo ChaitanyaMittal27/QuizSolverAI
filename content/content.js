@@ -1,6 +1,5 @@
 /**
  * Quiz Solver Extension - Main Content Script
- * handle calls internally directly for within context, only API calls will be await asynced
  */
 (function () {
   "use strict";
@@ -26,41 +25,27 @@
    * Initialize the extension
    */
   async function initialize() {
-    console.log("[Quiz Solver] Extension loading..."); // DEBUG log
+    console.log("[Quiz Solver] Extension loading...");
     if (isInitialized) {
       console.log("[Quiz Solver] Already initialized");
       return;
     }
 
-    // setup requirements
+    // Setup requirements
     setupKeyboardListeners();
     await initializeGeminiAPI();
 
-    // mark as initialized
+    // Mark as initialized
     isInitialized = true;
-    console.log("[Quiz Solver] Extension loaded successfully! 🚀"); // DEBUG log
+    console.log("[Quiz Solver] Extension loaded successfully! 🚀");
   }
-
-  function handleNotSolvableError(error) {
-    ErrorHandlerPopup.handleError(error);
-    console.error("[Quiz Solver] Error:", error);
-  }
-
-  // testing error popup
-  document.addEventListener("keydown", (e) => {
-    if (e.ctrlKey && e.shiftKey && e.key === "E") {
-      e.preventDefault();
-      handleError(new Error("This is a test error for the popup display."));
-    }
-  });
 
   /**
    * Setup keyboard event listeners
-   * will call the handleKeyboardShortcut function
    */
   function setupKeyboardListeners() {
     document.addEventListener("keydown", handleKeyboardShortcut);
-    console.log("[Quiz Solver] Keyboard listeners registered"); // DEBUG log
+    console.log("[Quiz Solver] Keyboard listeners registered");
   }
 
   /**
@@ -91,50 +76,48 @@
    */
   async function handleSolveTrigger() {
     console.log("[Quiz Solver] 🎯 Solve triggered!");
+
     try {
-      // Extract DOM
+      // Phase 1: Extract DOM
       const domManager = new window.DOMManager();
       const domData = domManager.extractCleanHTML();
+      console.log("[Quiz Solver] ✓ DOM extracted");
 
-      // snapshot current state
+      // Phase 2: Detect site type
+      const siteType = window.AdapterRouter.detectSite(domData.url);
+      console.log("[Quiz Solver] Detected site:", siteType);
 
-      // check services
-      if (!geminiService) {
-        console.error("[Quiz Solver] ❌ Gemini service not initialized");
-        return;
-      }
-      // Extract structure
-      const quizStructure = await window.StructureExtractorController.extract(domData, geminiService);
-      // console.log("[Quiz Solver] ✅ Quiz structure extracted:", quizStructure); // DEBUG log
+      // Phase 3: Extract structure
+      console.log("[Quiz Solver] 🔍 Extracting quiz structure...");
+      const quizStructure = await window.AdapterRouter.extract(domData, geminiService);
+      console.log("[Quiz Solver] ✅ Structure extracted!");
 
-      // Extract answers
-      //console.log("[Quiz Solver] 🧠 Generating answers...");
+      // Phase 4: Generate answers
+      console.log("[Quiz Solver] 🧠 Generating answers...");
       const answerInstructions = await window.AIAnswerGenerator.generateAnswers(quizStructure, geminiService);
-      //console.log("[Quiz Solver] ✅ Answers generated!");
-      //console.log("[Quiz Solver] 📋 Answer Instructions:");
-      //console.log(JSON.stringify(answerInstructions, null, 2));
+      console.log("[Quiz Solver] ✅ Answers generated!");
 
-      // Fill answers
+      // Phase 5: Apply answers (CHANGED - now uses ApplicatorRouter)
       console.log("[Quiz Solver] ✍️ Filling answers...");
-      const results = await window.AnswerApplicator.applyAnswers(answerInstructions);
+      const results = await window.ApplicatorRouter.apply(siteType, answerInstructions);
+
       if (results.failed > 0) {
         console.warn(`[Quiz Solver] ⚠️ ${results.failed} questions failed to fill`);
       }
+
       console.log("[Quiz Solver] ✔️ Quiz solved!");
       console.log(`[Quiz Solver] 📊 Results: ${results.success}/${results.total} answered`);
-
-      console.log("[Quiz Solver] ✔️ Solve process completed!");
     } catch (error) {
-      handleNotSolvableError(error);
+      window.ErrorHandlerPopup.handleError(error);
     }
   }
 
   /**
-   * Handle undo trigger (Ctrl+Shift+Z)
+   * Handle undo trigger (Ctrl+Shift+E)
    */
   function handleUndoTrigger() {
     console.log("[Quiz Solver] ↶ Undo triggered!");
-    // TODO: Phase 9 - Restore snapshot
+    // TODO: Implement undo functionality
   }
 
   /**

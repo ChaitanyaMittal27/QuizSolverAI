@@ -1,5 +1,6 @@
 /**
- * Google Forms specific prompt
+ * Google Forms Prompt Template
+ * Site-specific prompt for Google Forms extraction
  */
 const GoogleFormsPrompt = {
   build(html, url) {
@@ -33,12 +34,12 @@ Return this EXACT JSON structure:
       "question_class": "geS5n",
       "question_name": null,
       "question_text": "What is your name?",
-      "question_type": "text|paragraph|radio|checkbox",
+      "question_type": "text|textarea|radio|checkbox",
       "required": true|false,
       "points": null|number,
       "input_id": "extract from input/textarea if present",
       "input_class": "extract from input/textarea if present",
-      "input_name": "extract from input name attribute or hidden input",
+      "input_name": "extract from input name attribute",
       "selector": "construct appropriate selector",
       "options": [...]
     }
@@ -49,7 +50,7 @@ QUESTION TYPES:
 - "radio": Single choice (role="radiogroup" or role="radio")
 - "checkbox": Multiple choice (role="checkbox")
 - "text": Short answer (input[type="text"])
-- "paragraph": Long answer (textarea)
+- "textarea": Long answer (textarea)
 
 FOR RADIO/CHECKBOX QUESTIONS, include "options" array:
 {
@@ -98,12 +99,13 @@ GOOGLE FORMS PATTERNS:
 SELECTOR CONSTRUCTION:
 - Radio: "div[role='radio'][data-value='VALUE']"
 - Checkbox: "div[role='checkbox'][data-answer-value='VALUE']"
-- Text: "input[type='text'][aria-labelledby*='QUESTION_ID']"
-- Paragraph: "textarea[aria-labelledby*='QUESTION_ID']"
+- Text: "input[type='text'][name='ENTRY_NAME']"
+- Textarea: "textarea[name='ENTRY_NAME']"
 
 Extract ALL questions. Use sequential IDs (q1, q2, q3...) and (opt1, opt2, opt3...).
 Return ONLY JSON, nothing else.`;
   },
 };
 
+// Expose globally
 window.GoogleFormsPrompt = GoogleFormsPrompt;
