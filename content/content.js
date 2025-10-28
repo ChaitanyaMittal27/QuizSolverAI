@@ -14,6 +14,7 @@
     googleForms: /forms\.google\.com|docs\.google\.com\/forms/i,
     canvas: /canvas\./i,
     moodle: /moodle\./i,
+    coursys: /coursys\.sfu\.ca/i,
   };
 
   /**
@@ -24,6 +25,7 @@
   function detectSite(url) {
     if (SITE_PATTERNS.googleForms.test(url)) return "googleForms";
     if (SITE_PATTERNS.canvas.test(url)) return "canvas";
+    if (SITE_PATTERNS.coursys.test(url)) return "coursys";
     if (SITE_PATTERNS.moodle.test(url)) return "moodle";
     return "generic";
   }

@@ -76,7 +76,12 @@ const AIAnswerGenerator = (function () {
         }
         return window.GoogleFormsAnsGenPrompt(quizStructure);
 
-      case "generic":
+      case "coursys":
+        if (!window.CoursysAnsGenPrompt) {
+          throw new Error("CoursysAnsGenPrompt not loaded");
+        }
+        return window.CoursysAnsGenPrompt(quizStructure);
+
       case "moodle": // Fallback to generic for moodle until we have specific prompt
         if (!window.GenericAnsGenPrompt) {
           throw new Error("GenericAnsGenPrompt not loaded");

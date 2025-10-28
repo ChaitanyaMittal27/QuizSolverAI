@@ -15,6 +15,9 @@ const ApplicatorRouter = (function () {
       case "canvas":
         return await window.CanvasApplicator.applyAnswers(answerInstructions);
 
+      case "coursys":
+        return await window.CoursysApplicator.applyAnswers(answerInstructions);
+
       case "googleForms":
         return await window.GoogleFormsApplicator.applyAnswers(answerInstructions);
 

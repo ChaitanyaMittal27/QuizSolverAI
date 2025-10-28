@@ -21,6 +21,9 @@ const AdapterRouter = (function () {
       case "canvas":
         return await extractCanvas(domData, aiService);
 
+      case "coursys":
+        return await extractCoursys(domData, aiService);
+
       case "moodle":
         return await extractMoodle(domData, aiService);
 
@@ -61,6 +64,30 @@ const AdapterRouter = (function () {
     try {
       console.log("[AdapterRouter] Trying manual Canvas extraction...");
       const structure = await window.CanvasExtractor.extractStructure(domData.cleanedHTML, domData.url);
+
+      if (structure && structure.questions && structure.questions.length > 0) {
+        console.log("[AdapterRouter] ✅ Manual extraction succeeded!");
+        return structure;
+      }
+
+      console.log("[AdapterRouter] Manual extraction not available, using AI...");
+    } catch (error) {
+      console.warn("[AdapterRouter] Manual extraction failed:", error.message);
+      console.log("[AdapterRouter] Falling back to AI...");
+    }
+
+    // Fallback to AI with Canvas prompt
+    return await extractWithAI(domData, aiService, window.CanvasPrompt);
+  }
+
+  /**
+   * Extract Coursys - try manual first, fallback to AI
+   */
+  async function extractCoursys(domData, aiService) {
+    // Try manual extraction first (currently returns null - placeholder)
+    try {
+      console.log("[AdapterRouter] Trying manual Coursys extraction...");
+      const structure = await window.CoursysExtractor.extractStructure(domData.cleanedHTML, domData.url);
 
       if (structure && structure.questions && structure.questions.length > 0) {
         console.log("[AdapterRouter] ✅ Manual extraction succeeded!");
