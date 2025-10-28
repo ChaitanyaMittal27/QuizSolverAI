@@ -23,6 +23,11 @@
         "adapters/canvas/CanvasApplicator.js",
         "adapters/canvas/CanvasAnsGenPrompt.js",
 
+        "adapters/coursys/CoursysPrompt.js",
+        "adapters/coursys/CoursysExtractor.js",
+        "adapters/coursys/CoursysApplicator.js",
+        "adapters/coursys/CoursysAnsGenPrompt.js",
+
         "adapters/generic/GenericPrompt.js",
         "adapters/generic/GenericExtractor.js",
         "adapters/generic/GenericApplicator.js",

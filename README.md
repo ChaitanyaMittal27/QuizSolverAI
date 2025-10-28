@@ -1,6 +1,6 @@
 # Quiz Solver - AI-Powered Quiz Automation Extension
 
-> **Automatically solve online quizzes using AI** - Supports Canvas LMS, Google Forms, and more
+> **Automatically solve online quizzes using AI** - Supports Canvas LMS, Google Forms, CourSys, and more
 
 <p align="center">
   <img src="https://img.shields.io/badge/Chrome-Extension-green?logo=googlechrome" alt="Chrome Extension">
@@ -23,7 +23,6 @@
 - [Keyboard Shortcuts](#keyboard-shortcuts)
 - [How It Works](#how-it-works)
 - [Extending Support](#extending-support)
-- [Troubleshooting](#troubleshooting)
 - [Privacy & Ethics](#privacy--ethics)
 - [Contributing](#contributing)
 - [License](#license)
@@ -56,7 +55,7 @@
 
 - ⚡ **One-Click Solving** - Press `Ctrl+Shift+Q` to solve any quiz
 - 🤖 **AI-Powered** - Uses Google Gemini Flash for intelligent answers
-- 🎯 **Multi-Platform** - Works on Canvas, Google Forms, and generic sites
+- 🎯 **Multi-Platform** - Works on Canvas, Google Forms, CourSys, and generic sites
 - 🔄 **Dual Strategy** - Manual DOM parsing with AI fallback
 - 🎨 **Styled Errors** - Chrome-style error popups with dark/light themes
 - 📊 **Detailed Logging** - Console logs for debugging and tracking
@@ -69,17 +68,7 @@
 | **Checkbox** | Multiple choice (multiple answers) | ✅ Full |
 | **Text**     | Short answer input                 | ✅ Full |
 | **Textarea** | Essay/long answer                  | ✅ Full |
-
-### Platform Features
-
-| Feature           | Canvas | Google Forms | Generic |
-| ----------------- | ------ | ------------ | ------- |
-| Manual Extraction | ✅     | ✅           | ❌      |
-| AI Extraction     | ✅     | ✅           | ✅      |
-| TinyMCE Support   | ✅     | ❌           | ❌      |
-| Event Simulation  | ✅     | ✅           | ✅      |
-
----
+| **Select**   | Dropdown menu                      | ✅ Full |
 
 ## 🌐 Supported Platforms
 
@@ -99,6 +88,13 @@
       <code>forms.google.com</code><br>
       ✅ Manual Extractor<br>
       ✅ Custom Selectors<br>
+      ✅ All Question Types
+    </td>
+    <td align="center">
+      <strong>CourSys (SFU)</strong><br>
+      <code>coursys.sfu.ca</code><br>
+      ✅ Manual Extractor<br>
+      ✅ Dropdown Support<br>
       ✅ All Question Types
     </td>
   </tr>
@@ -136,7 +132,7 @@ cd quiz-solver
 
 ### Method 2: From Chrome Web Store
 
-_Coming soon - see Publishing Guide_
+_Coming soon_
 
 ### Directory Structure
 
@@ -147,6 +143,7 @@ quiz-solver/
 ├── adapters/
 │   ├── canvas/                   # Canvas LMS adapter
 │   ├── google-forms/             # Google Forms adapter
+│   ├── coursys/                  # CourSys (SFU) adapter
 │   └── generic/                  # Generic fallback
 ├── services/
 │   ├── ai/                       # AI services (Gemini)
@@ -209,7 +206,7 @@ const CONFIG = {
 
 ### Basic Usage
 
-1. **Navigate** to a quiz page (Canvas, Google Forms, etc.)
+1. **Navigate** to a quiz page (Canvas, Google Forms, CourSys, etc.)
 2. **Press** `Ctrl+Shift+Q`
 3. **Wait** for AI to analyze (5-15 seconds)
 4. **Review** filled answers
@@ -240,6 +237,17 @@ const CONFIG = {
 6. Review and submit
 ```
 
+#### On CourSys (SFU)
+
+```
+1. Navigate to form: https://coursys.sfu.ca/forms/...
+2. Press Ctrl+Shift+Q
+3. Extension extracts questions (radio, checkbox, text, textarea, select)
+4. AI generates answers
+5. Answers are applied (file uploads skipped automatically)
+6. Review and submit
+```
+
 #### On Generic Sites
 
 ```
@@ -258,16 +266,16 @@ Check the browser console (`F12`) for detailed logs:
 ```
 [Quiz Solver] 🎯 Solve triggered!
 [Quiz Solver] ✓ DOM extracted
-[Quiz Solver] Detected site: canvas
+[Quiz Solver] Detected site: coursys
 [Quiz Solver] 🔍 Extracting quiz structure...
-[CanvasExtractor] Found 5 questions
+[CoursysExtractor] Found 28 questions
 [Quiz Solver] ✅ Structure extracted!
 [Quiz Solver] 🧠 Generating answers...
 [AIAnswerGenerator] Answers generated successfully
 [Quiz Solver] ✏️ Filling answers...
-[CanvasApplicator] Success: 5/5
+[CoursysApplicator] Success: 24/24
 [Quiz Solver] ✔️ Quiz solved!
-[Quiz Solver] 📊 Results: 5/5 answered
+[Quiz Solver] 📊 Results: 24/24 answered
 ```
 
 ---
@@ -302,6 +310,7 @@ Check the browser console (`F12`) for detailed logs:
 │  │    Routes to:               │   │
 │  │    - CanvasExtractor        │   │
 │  │    - GoogleFormsExtractor   │   │
+│  │    - CoursysExtractor       │   │
 │  │    - GenericExtractor       │   │
 │  └──────────┬──────────────────┘   │
 │             │                       │
@@ -318,59 +327,73 @@ Check the browser console (`F12`) for detailed logs:
 │  │    Routes to:               │   │
 │  │    - CanvasApplicator       │   │
 │  │    - GoogleFormsApplicator  │   │
+│  │    - CoursysApplicator      │   │
 │  │    - GenericApplicator      │   │
 │  └──────────┬──────────────────┘   │
 │             │                       │
 │             ▼                       │
 │  ┌─────────────────────────────┐   │
-│  │    6. DOM MANIPULATION      │   │
-│  │    Fill form fields         │   │
+│  │    6. QUIZ COMPLETED        │   │
+│  │    Results logged           │   │
 │  └─────────────────────────────┘   │
 └─────────────────────────────────────┘
 ```
 
-### Component Architecture
+### Component Details
 
-#### Adapter Pattern
+#### DOMManager
 
-Each platform has 4 components:
+- Extracts raw HTML from page
+- Cleans scripts, styles, iframes
+- Returns structured DOM data
 
-```
-adapters/canvas/
-├── CanvasPrompt.js         # AI extraction prompt
-├── CanvasExtractor.js      # Manual DOM parser
-├── CanvasAnsGenPrompt.js   # Answer generation prompt
-└── CanvasApplicator.js     # Form filling logic
-```
+#### AdapterRouter
 
-#### Data Flow
+- Detects site type (Canvas, Google Forms, CourSys, etc.)
+- Routes to appropriate extractor
+- Falls back to AI if manual extraction fails
+
+#### Extractors
+
+- **Manual extractors** - Parse DOM directly using selectors
+- **AI extractor** - Uses Gemini to understand structure
+- Return standardized question format
+
+#### AIAnswerGenerator
+
+- Takes question structure
+- Sends to Gemini API with platform-specific prompt
+- Returns answer instructions
+
+#### Applicators
+
+- Take answer instructions
+- Fill form fields using DOM manipulation
+- Dispatch proper events for frameworks
+
+### Data Flow
 
 ```javascript
 // 1. DOM Data
 {
-  rawHTML: "<html>...</html>",
-  cleanedHTML: "cleaned HTML",
-  url: "https://...",
-  timestamp: "2025-10-24T..."
+  url: "https://coursys.sfu.ca/forms/...",
+  cleanedHTML: "<html>...</html>",
+  timestamp: "2025-01-15T10:30:00.000Z"
 }
 
 // 2. Quiz Structure
 {
   quizMetadata: {
     url: "...",
-    platform: "canvas",
-    title: "Quiz 1"
+    platform: "coursys",
+    title: "Breadth Evaluation"
   },
   questions: [
     {
       qid: "q1",
-      question_id: "question_123",
-      question_text: "What is 2+2?",
       question_type: "radio",
-      options: [
-        { oid: "opt1", option_text: "3", ... },
-        { oid: "opt2", option_text: "4", ... }
-      ]
+      question_text: "What is 2+2?",
+      options: [...]
     }
   ]
 }
@@ -383,7 +406,7 @@ adapters/canvas/
       question_type: "radio",
       correct_option: {
         oid: "opt2",
-        option_id: "question_123_answer_124",
+        option_id: "id_4_1",
         option_text: "4"
       }
     }
@@ -392,8 +415,8 @@ adapters/canvas/
 
 // 4. Application Results
 {
-  total: 5,
-  success: 5,
+  total: 24,
+  success: 24,
   failed: 0,
   details: [
     { qid: "q1", status: "success" }
@@ -428,14 +451,21 @@ SHORTCUTS: {
 ### Phase 1: Extraction
 
 ```javascript
-// Manual extraction (Canvas example)
-const questionDivs = document.querySelectorAll(".display_question");
-questionDivs.forEach(div => {
+// Manual extraction (CourSys example)
+const dlform = document.querySelector("dl.dlform");
+const dtElements = dlform.querySelectorAll("dt");
+
+dtElements.forEach((dt, idx) => {
+  const label = dt.querySelector("label");
+  const questionText = label.textContent.trim();
+  const forAttr = label.getAttribute("for");
+
   const question = {
-    qid: "q1",
-    question_text: div.querySelector(".question_text").textContent,
-    question_type: "radio",
-    options: [...] // Extract radio buttons
+    qid: `q${idx + 1}`,
+    question_id: forAttr,
+    question_text: questionText,
+    question_type: detectType(dt.nextElementSibling),
+    options: extractOptions(dt.nextElementSibling),
   };
 });
 ```
@@ -461,6 +491,10 @@ radioButton.click();
 const textInput = document.getElementById(answer.input_id);
 textInput.value = answer.text_answer;
 textInput.dispatchEvent(new Event("input", { bubbles: true }));
+
+const select = document.getElementById(answer.input_id);
+select.value = answer.selected_option.option_value;
+select.dispatchEvent(new Event("change", { bubbles: true }));
 ```
 
 ---
@@ -477,89 +511,18 @@ Want to add support for a new platform? See our **[Custom Adapter Guide](CUSTOM_
 4. Update manifest.json
 5. Test thoroughly
 
-**Example:** Adding Blackboard support takes ~2-4 hours.
+**Example:** Adding CourSys support took ~2-3 hours.
 
----
-
-## 🐛 Troubleshooting
-
-### Common Issues
-
-#### Extension Doesn't Load
+### File Structure for New Platform
 
 ```
-Problem: Extension shows error on chrome://extensions
-Solution:
-  1. Check console for syntax errors
-  2. Verify all files are present
-  3. Check manifest.json format
-  4. Reload extension
+adapters/
+└── yourplatform/
+    ├── YourPlatformPrompt.js        # AI extraction instructions
+    ├── YourPlatformExtractor.js     # Manual DOM parser
+    ├── YourPlatformAnsGenPrompt.js  # Answer generation instructions
+    └── YourPlatformApplicator.js    # Answer application logic
 ```
-
-#### API Key Error
-
-```
-Problem: "Gemini API key not configured"
-Solution:
-  1. Open config/constants.js
-  2. Add your API key to GEMINI_API_KEY
-  3. Reload extension
-  4. Verify key is valid at https://makersuite.google.com
-```
-
-#### Site Not Detected
-
-```
-Problem: Extension doesn't trigger on quiz page
-Solution:
-  1. Check URL matches pattern in SITE_PATTERNS
-  2. Open console (F12) and check for detection logs
-  3. Try generic fallback (should work on any site)
-  4. Add custom pattern to content.js
-```
-
-#### Questions Not Extracted
-
-```
-Problem: "No questions found in structure"
-Solution:
-  1. Check console for extraction errors
-  2. Verify manual extractor selectors match HTML
-  3. Try on different quiz page
-  4. AI fallback should activate automatically
-```
-
-#### Answers Not Filled
-
-```
-Problem: Quiz not filled after AI response
-Solution:
-  1. Check console for applicator errors
-  2. Verify input IDs/names are correct
-  3. Check if page uses custom events
-  4. Try refreshing page and running again
-```
-
-### Debug Mode
-
-Enable detailed logging:
-
-```javascript
-// Add to config/constants.js
-DEBUG_MODE: true,
-  // Or open console and run:
-  localStorage.setItem("quiz_solver_debug", "true");
-```
-
-### Getting Help
-
-1. Check existing [issues](https://github.com/yourusername/quiz-solver/issues)
-2. Open new issue with:
-   - Platform/URL
-   - Console logs
-   - Browser version
-   - Steps to reproduce
-3. Join discussions
 
 ---
 
@@ -653,35 +616,6 @@ git push origin feature/new-platform
 ## 📄 License
 
 MIT License - see [LICENSE](LICENSE) file for details.
-
-## 🗺️ Roadmap
-
-### v1.1 (Next Release)
-
-- [ ] Undo functionality (Ctrl+Shift+E)
-- [ ] Answer confidence scoring
-- [ ] Manual answer override
-- [ ] Blackboard support
-
-### v1.2 (Future)
-
-- [ ] Multiple AI providers (OpenAI, Claude)
-- [ ] Local answer caching
-- [ ] Settings page
-- [ ] Answer history
-
-### v2.0 (Long-term)
-
-- [ ] Browser extension for Firefox
-- [ ] Mobile support
-- [ ] Batch quiz processing
-- [ ] Advanced analytics
-
----
-
-## 📸 Screenshots
-
-_Coming soon_
 
 ---
 
